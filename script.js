@@ -1,11 +1,19 @@
+let r,g,b;
+
 function setup(){ 
 	createCanvas(1200,800);
-	frameRate(1);
+	
 }
 
 function draw(){
-	background(random(250),random(255),random(255));
-	fill(0);
-	text(mouseX,50,50);
+	background(230);
+	if(frameCount%60==0){
+      r=random(255);
+      g=random(255);
+      b=random(255);
+    }
+	fill(r,g,b);
+    noStroke();
+	circle(mouseX,mouseY,100);
 	
 }
