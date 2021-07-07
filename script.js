@@ -14,6 +14,6 @@ function draw(){
     }
 	fill(r,g,b);
     noStroke();
-	circle(mouseX,mouseY,100);
+	circle(500,500,100);
 	
 }
