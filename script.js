@@ -1,13 +1,12 @@
 
 function setup(){ 
-	createCanvas(1200,800);
-
+	createCanvas(windowWidth,windowHeight);
+	colorMode(HSB,800,100,100);
 }
 
 function draw(){
-	background(255);
-	fill(0);
-	textSize(60);
-	text(mouseX+" "+mouseY,mouseX,mouseY);
-	ellipse(width/2,height/2,400);
+	background("#f0f0f0");
+    noStroke();
+	fill(frameCount%800,100,80);
+	ellipse(mouseX,mouseY,400);
 }
