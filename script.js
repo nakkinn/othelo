@@ -7,8 +7,8 @@ function setup(){
 function draw(){
 	background(random(255),random(255),random(255));
 	fill(255);
-	circle(width/2,height/2,200);
+	//circle(width/2,height/2,200);
 	text(mouseX,20,20);
-	text(mouseX,mouseX+30,60);
+	//text(mouseX,mouseX+30,60);
 	
 }
