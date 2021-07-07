@@ -9,5 +9,5 @@ function draw(){
 	fill(0);
 	textSize(60);
 	text(mouseX+" "+mouseY,mouseX,mouseY);
-	
+	ellipse(width/2,height/2,400);
 }
