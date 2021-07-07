@@ -1,11 +1,9 @@
 function setup(){ 
 	createCanvas(1200,800);
-	
+	frameRate(1);
 }
 
 function draw(){
-	background(0,150,160);
-	noStroke();
-	fill(255);
-	circle(mouseX,mouseY,100);
+	background(random(250),random(255),random(255));
+	
 }
