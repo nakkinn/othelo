@@ -7,7 +7,7 @@ let name='img';
 
 function preload(){
 	input=createFileInput(callback);
-	img=loadImage("");
+	img=loadImage("moai.jpg");
 	button=createButton("Save Image");
 	
 	x=img.width;
