@@ -1,97 +1,241 @@
-const Peer = window.Peer;
+tachat.jsJavaScript
+var conn;     // データ通信用connectionオブジェクトの保存用変数 
 
-(async function main() {
-  const localId = document.getElementById('js-local-id');
-  const localText = document.getElementById('js-local-text');
-  const connectTrigger = document.getElementById('js-connect-trigger');
-  const closeTrigger = document.getElementById('js-close-trigger');
-  const sendTrigger = document.getElementById('js-send-trigger');
-  const remoteId = document.getElementById('js-remote-id');
-  const messages = document.getElementById('js-messages');
-  const meta = document.getElementById('js-meta');
-  const sdkSrc = document.querySelector('script[src*=skyway]');
+// SkyWayのシグナリングサーバーへ接続する  (APIキーを置き換える必要あり）
+var peer = new Peer({ key: 'YourApiKey', debug: 3});
 
-  meta.innerText = `
-    UA: ${navigator.userAgent}
-    SDK: ${sdkSrc ? sdkSrc.src : 'unknown'}
-  `.trim();
+// シグナリングサーバへの接続が確立したときに、このopenイベントが呼ばれる
+peer.on('open', function(){
+    // 自分のIDを表示する
+    // - 自分のIDはpeerオブジェクトのidプロパティに存在する
+    // - 相手はこのIDを指定することで、通信を開始することが出来る
+    $('#my-id').text(peer.id);
+});
+ 
+// 相手からデータ通信の接続要求イベントが来た場合、このconnectionイベントが呼ばれる
+// - 渡されるconnectionオブジェクトを操作することで、データ通信が可能
+peer.on('connection', function(connection){
+  　
+    // データ通信用に connectionオブジェクトを保存しておく
+    conn = connection;
 
-  const peer = (window.peer = new Peer({
-    key: window.__SKYWAY_KEY__,
-    debug: 3,
-  }));
-
-  // Register connecter handler
-  connectTrigger.addEventListener('click', () => {
-    // Note that you need to ensure the peer has connected to signaling server
-    // before using methods of peer instance.
-    if (!peer.open) {
-      return;
-    }
-
-    const dataConnection = peer.connect(remoteId.value);
-
-    dataConnection.once('open', async () => {
-      messages.textContent += `=== DataConnection has been opened ===\n`;
-
-      sendTrigger.addEventListener('click', onClickSend);
+    // 接続が完了した場合のイベントの設定
+    conn.on("open", function() {
+        // 相手のIDを表示する
+        // - 相手のIDはconnectionオブジェクトのidプロパティに存在する
+        $("#peer-id").text(conn.id);
     });
 
-    dataConnection.on('data', data => {
-      messages.textContent += `Remote: ${data}\n`;
+    // メッセージ受信イベントの設定
+    conn.on("data", onRecvMessage);
+});
+
+// メッセージ受信イベントの設定
+function onRecvMessage(data) {
+    // 画面に受信したメッセージを表示
+    $("#messages").append($("<p>").text(conn.id + ": " + data).css("font-weight", "bold"));
+}
+
+// DOM要素の構築が終わった場合に呼ばれるイベント
+// - DOM要素に結びつく設定はこの中で行なう
+$(function() {
+
+    // Connectボタンクリック時の動作
+    $("#connect").click(function() {
+        // 接続先のIDをフォームから取得する
+        var peer_id = $('#peer-id-input').val();
+
+        // 相手への接続を開始する
+        conn = peer.connect(peer_id);
+
+        // 接続が完了した場合のイベントの設定
+        conn.on("open", function() {
+            // 相手のIDを表示する
+            // - 相手のIDはconnectionオブジェクトのidプロパティに存在する
+            $("#peer-id").text(conn.id);
+        });
+
+        // メッセージ受信イベントの設定
+        conn.on("data", onRecvMessage);
     });
 
-    dataConnection.once('close', () => {
-      messages.textContent += `=== DataConnection has been closed ===\n`;
-      sendTrigger.removeEventListener('click', onClickSend);
+    // Sendボタンクリック時の動作
+    $("#send").click(function() {
+        // 送信テキストの取得
+        var message = $("#message").val();
+
+        // 送信
+        conn.send(message);
+
+        // 自分の画面に表示
+        $("#messages").append($("<p>").html(peer.id + ": " + message));
+
+        // 送信テキストボックスをクリア
+        $("#message").val("");
     });
 
-    // Register closing handler
-    closeTrigger.addEventListener('click', () => dataConnection.close(true), {
-      once: true,
+    // Closeボタンクリック時の動作
+    $("#close").click(function() {
+        conn.close();
     });
-
-    function onClickSend() {
-      const data = localText.value;
-      dataConnection.send(data);
-
-      messages.textContent += `You: ${data}\n`;
-      localText.value = '';
-    }
-  });
-
-  peer.once('open', id => (localId.textContent = id));
-
-  // Register connected peer handler
-  peer.on('connection', dataConnection => {
-    dataConnection.once('open', async () => {
-      messages.textContent += `=== DataConnection has been opened ===\n`;
-
-      sendTrigger.addEventListener('click', onClickSend);
+});
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+var conn;     // データ通信用connectionオブジェクトの保存用変数 
+ 
+// SkyWayのシグナリングサーバーへ接続する  (APIキーを置き換える必要あり）
+var peer = new Peer({ key: 'cf1155ef-ab9f-41a3-bd4a-b99c30cc0663', debug: 3});
+ 
+// シグナリングサーバへの接続が確立したときに、このopenイベントが呼ばれる
+peer.on('open', function(){
+    // 自分のIDを表示する
+    // - 自分のIDはpeerオブジェクトのidプロパティに存在する
+    // - 相手はこのIDを指定することで、通信を開始することが出来る
+    $('#my-id').text(peer.id);
+});
+ 
+// 相手からデータ通信の接続要求イベントが来た場合、このconnectionイベントが呼ばれる
+// - 渡されるconnectionオブジェクトを操作することで、データ通信が可能
+peer.on('connection', function(connection){
+  　
+    // データ通信用に connectionオブジェクトを保存しておく
+    conn = connection;
+ 
+    // 接続が完了した場合のイベントの設定
+    conn.on("open", function() {
+        // 相手のIDを表示する
+        // - 相手のIDはconnectionオブジェクトのidプロパティに存在する
+        $("#peer-id").text(conn.id);
     });
-
-    dataConnection.on('data', data => {
-      messages.textContent += `Remote: ${data}\n`;
+ 
+    // メッセージ受信イベントの設定
+    conn.on("data", onRecvMessage);
+});
+ 
+// メッセージ受信イベントの設定
+function onRecvMessage(data) {
+    // 画面に受信したメッセージを表示
+    $("#messages").append($("<p>").text(conn.id + ": " + data).css("font-weight", "bold"));
+}
+ 
+// DOM要素の構築が終わった場合に呼ばれるイベント
+// - DOM要素に結びつく設定はこの中で行なう
+$(function() {
+ 
+    // Connectボタンクリック時の動作
+    $("#connect").click(function() {
+        // 接続先のIDをフォームから取得する
+        var peer_id = $('#peer-id-input').val();
+ 
+        // 相手への接続を開始する
+        conn = peer.connect(peer_id);
+ 
+        // 接続が完了した場合のイベントの設定
+        conn.on("open", function() {
+            // 相手のIDを表示する
+            // - 相手のIDはconnectionオブジェクトのidプロパティに存在する
+            $("#peer-id").text(conn.id);
+        });
+ 
+        // メッセージ受信イベントの設定
+        conn.on("data", onRecvMessage);
     });
-
-    dataConnection.once('close', () => {
-      messages.textContent += `=== DataConnection has been closed ===\n`;
-      sendTrigger.removeEventListener('click', onClickSend);
+ 
+    // Sendボタンクリック時の動作
+    $("#send").click(function() {
+        // 送信テキストの取得
+        var message = $("#message").val();
+ 
+        // 送信
+        conn.send(message);
+ 
+        // 自分の画面に表示
+        $("#messages").append($("<p>").html(peer.id + ": " + message));
+ 
+        // 送信テキストボックスをクリア
+        $("#message").val("");
     });
-
-    // Register closing handler
-    closeTrigger.addEventListener('click', () => dataConnection.close(true), {
-      once: true,
+ 
+    // Closeボタンクリック時の動作
+    $("#close").click(function() {
+        conn.close();
     });
-
-    function onClickSend() {
-      const data = localText.value;
-      dataConnection.send(data);
-
-      messages.textContent += `You: ${data}\n`;
-      localText.value = '';
-    }
-  });
-
-  peer.on('error', console.error);
-})();
+});
