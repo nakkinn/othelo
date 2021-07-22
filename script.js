@@ -1,120 +1,93 @@
-const Peer = window.Peer;
+let peerid;
+let dim;
+var conn;
+let inp;
+let button;
+let button2;
+let x=0,y=0;
 
-(async function main() {
-  const localVideo = document.getElementById('js-local-stream');
-  const joinTrigger = document.getElementById('js-join-trigger');
-  const leaveTrigger = document.getElementById('js-leave-trigger');
-  const remoteVideos = document.getElementById('js-remote-streams');
-  const roomId = document.getElementById('js-room-id');
-  const roomMode = document.getElementById('js-room-mode');
-  const localText = document.getElementById('js-local-text');
-  const sendTrigger = document.getElementById('js-send-trigger');
-  const messages = document.getElementById('js-messages');
-  const meta = document.getElementById('js-meta');
-  const sdkSrc = document.querySelector('script[src*=skyway]');
+let a,b;
+let swi1=false,swi2=false;
 
-  meta.innerText = `
-    UA: ${navigator.userAgent}
-    SDK: ${sdkSrc ? sdkSrc.src : 'unknown'}
-  `.trim();
 
-  const getRoomModeByHash = () => (location.hash === '#sfu' ? 'sfu' : 'mesh');
-
-  roomMode.textContent = getRoomModeByHash();
-  window.addEventListener(
-    'hashchange',
-    () => (roomMode.textContent = getRoomModeByHash())
-  );
-
-  const localStream = await navigator.mediaDevices
-    .getUserMedia({
-      audio: true,
-      video: true,
-    })
-    .catch(console.error);
-
-  // Render local stream
-  localVideo.muted = true;
-  localVideo.srcObject = localStream;
-  localVideo.playsInline = true;
-  await localVideo.play().catch(console.error);
-
-  // eslint-disable-next-line require-atomic-updates
-  const peer = (window.peer = new Peer({
+const peer = new Peer({
     key: 'cf1155ef-ab9f-41a3-bd4a-b99c30cc0663',
-    debug: 3,
-  }));
+    debug: 3
+});
 
-  // Register join handler
-  joinTrigger.addEventListener('click', () => {
-    // Note that you need to ensure the peer has connected to signaling server
-    // before using methods of peer instance.
-    if (!peer.open) {
-      return;
+function setup(){
+
+
+    createCanvas(400,400);
+    inp=createInput('');
+    button=createButton("接続");
+    button.mousePressed(myInputEvent);
+    
+}
+
+function draw(){
+    if(swi1==false) background('#aaeeff');
+        else if(swi2==false){
+            background('#111111');
+        }else background('#cccccc');
+    
+    
+
+
+}
+
+function myInputEvent(){
+    console.log(inp.value());
+    peerid=inp.value();
+    conn=peer.connect(peerid);
+    conn.on("data", onRecvMessage);
+    
+    swi2=false;
+    start();
+}
+
+peer.on('open', () => {
+    
+    dim=createP(peer.id);
+    
+});
+
+peer.on('connection', function(connection){
+
+    conn = connection;
+
+    conn.on("open", function() {
+        
+    });
+ 
+    conn.on("data", onRecvMessage);
+    
+    swi2=true;
+    start();
+});
+
+function onRecvMessage(data){
+    console.log(data);
+    if(data=="turnswitch"){
+        swi2=true;
     }
+}
 
-    const room = peer.joinRoom(roomId.value, {
-      mode: getRoomModeByHash(),
-      stream: localStream,
-    });
+function start(){
+    swi1=true;
+    if(swi2)    console.log("先手");
+        else    console.log("後手");
+    button.remove();
+    inp.remove();
 
-    room.once('open', () => {
-      messages.textContent += '=== You joined ===\n';
-    });
-    room.on('peerJoin', peerId => {
-      messages.textContent += `=== ${peerId} joined ===\n`;
-    });
+}
 
-    // Render remote stream for new peer join in the room
-    room.on('stream', async stream => {
-      const newVideo = document.createElement('video');
-      newVideo.srcObject = stream;
-      newVideo.playsInline = true;
-      // mark peerId to find it later at peerLeave event
-      newVideo.setAttribute('data-peer-id', stream.peerId);
-      remoteVideos.append(newVideo);
-      await newVideo.play().catch(console.error);
-    });
-
-    room.on('data', ({ data, src }) => {
-      // Show a message sent to the room and who sent
-      messages.textContent += `${src}: ${data}\n`;
-    });
-
-    // for closing room members
-    room.on('peerLeave', peerId => {
-      const remoteVideo = remoteVideos.querySelector(
-        `[data-peer-id="${peerId}"]`
-      );
-      remoteVideo.srcObject.getTracks().forEach(track => track.stop());
-      remoteVideo.srcObject = null;
-      remoteVideo.remove();
-
-      messages.textContent += `=== ${peerId} left ===\n`;
-    });
-
-    // for closing myself
-    room.once('close', () => {
-      sendTrigger.removeEventListener('click', onClickSend);
-      messages.textContent += '== You left ===\n';
-      Array.from(remoteVideos.children).forEach(remoteVideo => {
-        remoteVideo.srcObject.getTracks().forEach(track => track.stop());
-        remoteVideo.srcObject = null;
-        remoteVideo.remove();
-      });
-    });
-
-    sendTrigger.addEventListener('click', onClickSend);
-    leaveTrigger.addEventListener('click', () => room.close(), { once: true });
-
-    function onClickSend() {
-      // Send message to all of the peers in the room via websocket
-      room.send(localText.value);
-
-      messages.textContent += `${peer.id}: ${localText.value}\n`;
-      localText.value = '';
+function mouseClicked(){
+    if(swi2==true){
+        swi2=false;
+        conn.send("turnswitch");
     }
-  });
+}
 
-  peer.on('error', console.error);
-})();
+
+ 
