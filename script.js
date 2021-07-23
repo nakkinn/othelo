@@ -224,7 +224,7 @@ function disp(){
     }
 
     noStroke();
-    textSize(30);
+    textSize(25);
     if(swi3&&!swi4){
         textSize(30);
         fill(0);
