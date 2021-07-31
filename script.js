@@ -115,7 +115,7 @@ function start(){
         potato=2;
         tomato=1;
     }
-    
+    url.position(20,windowHeight+60);
 }
 
 function mouseClicked(){
