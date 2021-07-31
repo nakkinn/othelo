@@ -19,7 +19,7 @@ function setup(){
 
     createCanvas(200,200);
     
-    url=createA('https://t.co/hCCMOMXzHu?amp=1', 'home');
+    
     
     peer= new Peer(makeid(),{
         key: 'cf1155ef-ab9f-41a3-bd4a-b99c30cc0663',
@@ -51,6 +51,9 @@ function setup(){
     inp=createInput('');
     button=createButton("接続");
     button.mousePressed(myInputEvent);
+    
+    url=createA('https://t.co/hCCMOMXzHu?amp=1', 'home');
+    url.position(30,500);
     
 }
 
