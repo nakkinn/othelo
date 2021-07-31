@@ -1,6 +1,7 @@
 let dim;
 var conn;
 let inp,button;
+let url=createA('https://t.co/hCCMOMXzHu?amp=1', 'home');
 
 let swi1=false,swi2=false,swi3=false,swi4=false;
 
