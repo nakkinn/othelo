@@ -1,8 +1,7 @@
 let dim;
 var conn;
 let inp,button;
-let url=createA('https://t.co/hCCMOMXzHu?amp=1', 'home');
-
+let url;
 let swi1=false,swi2=false,swi3=false,swi4=false;
 
 let w;
@@ -19,7 +18,9 @@ function setup(){
 
 
     createCanvas(200,200);
-
+    
+    url=createA('https://t.co/hCCMOMXzHu?amp=1', 'home');
+    
     peer= new Peer(makeid(),{
         key: 'cf1155ef-ab9f-41a3-bd4a-b99c30cc0663',
         debug: 3
