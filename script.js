@@ -4,7 +4,7 @@ let ts=60,rs=15,px=50,py=50,mode=0,c=6,r=6;
 let dir=[[[-1,0],[1,0]],[[0,-1],[0,1]]],col=['#3a57fd','#f14434'];
 let pnum=1,mem=2,start=true;
 let myturn,turn=0;
-let wall=;
+let wall=10;
 let peer,room,id="";
 
 function setup(){
