@@ -2,7 +2,7 @@ let block=new Array(17);
 for(let i=0;i<17;i++)   block[i]=new Array(17);
 let ts=60,rs=15,px=50,py=50,mode=0,c=6,r=6;
 let dir=[[[-1,0],[1,0]],[[0,-1],[0,1]]],col=['#3a57fd','#f14434'];
-let pnum=1,mem=2,start=true;
+let pnum=1,mem,start=true;
 let myturn,turn=0;
 let wall=10;
 let peer,room,id="";
@@ -16,7 +16,7 @@ function setup(){
     });
     peer.on('open',()=>{
         id=peer.id;
-        room=peer.joinRoom("room",{
+        room=peer.joinRoom("rooma",{
             mode:'sfu'
         });
         room.on('open',()=>{
@@ -24,9 +24,11 @@ function setup(){
             for(let i=2;i<15;i+=2)  block[i][16]=7;
             if(pnum==1) myturn=true;
             else    turn=1;
+            mem=pnum;
         });
         room.on('peerJoin',peerId=>{
             console.log(peerId+"参加");
+            mem++;
         });
         room.on('peerLeave',peerId=>{
             console.log(peerId+"退出");
@@ -90,7 +92,7 @@ function draw(){
     line(px,py+9*ts+8*rs+10,px+9*ts+8*rs,py+9*ts+8*rs+10);
     if(turn%2==1) strokeWeight(12);    else    strokeWeight(4);
     stroke(col[(pnum)%2]);
-    line(px,py-10,px+9*ts+8*rs,py-10);
+    if(mem>1)   line(px,py-10,px+9*ts+8*rs,py-10);
 
 
     noStroke(),fill(0),textSize(30);
@@ -140,6 +142,16 @@ function mouseWheel(){
     mode=(mode+1)%2;
 }
 
+function keyPressed(){
+    if(key=='r'){
+        reset();
+        room.send("reset");
+    }
+    if(key=='c'){
+        room.send("close");
+    }
+}
+
 function enable(){
 
     if(start==false){
@@ -175,7 +187,29 @@ function ins(cc,rr){
 }
 
 function receive(s){
-    cmd(s);
+    if(s=="reset")  reset();
+    else if(s=="close") room.close();
+    else    cmd(s);
+}
+
+function reset(){
+    wall=10;
+    start=true;
+    for(let i=0;i<17;i++)   for(let j=0;j<17;j++){
+        block[i][j]=0;
+    }
+    for(let i=2;i<15;i+=2)  block[i][16]=7;
+    if(pnum==1) pnum=2;
+    else    pnum=1;
+    if(pnum==1) myturn=true;
+    else    myturn=false;
+    turn=pnum-1;
+    c=6;
+    r=6;
+    let tem=col[0];
+    col[0]=col[1];
+    col[1]=tem;
+
 }
 
 function cmd(s){
