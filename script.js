@@ -96,7 +96,7 @@ function draw(){
 
 
     noStroke(),fill(0),textSize(30);
-    text(wall,800,800);
+    text(wall,700,760);
 }
 
 function mouseClicked(){
