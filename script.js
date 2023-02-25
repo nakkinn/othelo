@@ -1,6 +1,6 @@
 let block=new Array(17);
 for(let i=0;i<17;i++)   block[i]=new Array(17);
-let ts=60,rs=15,px=50,py=50,mode=0,c=6,r=6;
+let ts=60,rs=15,px=50,py=50,mode=0,c=6,r=6,ec=6,er=6;
 let dir=[[[-1,0],[1,0]],[[0,-1],[0,1]]],col=['#3a57fd','#f14434'];
 let pnum=1,mem,start=true;
 let myturn,turn=0;
@@ -9,6 +9,8 @@ let peer,room,id="";
 
 function setup(){
     createCanvas(windowWidth,windowHeight);
+    
+    console.log("ver.2.0.0");
 
     peer=new Peer({
         key: 'cf1155ef-ab9f-41a3-bd4a-b99c30cc0663',
@@ -124,13 +126,22 @@ function mouseClicked(){
             if(dist(mouseX,mouseY,ts+i*(ts+rs)+rs/2+px,ts+j*(ts+rs)+rs/2+py)<ts/3){
                 if(block[i*2+1][j*2+1]==1&&block[i*2+1+dir[mode][0][0]][j*2+1+dir[mode][0][1]]==1
                 &&block[i*2+1+dir[mode][1][0]][j*2+1+dir[mode][1][1]]==1){
+                    
                     block[i*2+1][j*2+1]=pnum+7;
                     block[i*2+1+dir[mode][0][0]][j*2+1+dir[mode][0][1]]=pnum+7;
                     block[i*2+1+dir[mode][1][0]][j*2+1+dir[mode][1][1]]=pnum+7;
-                    room.send(pnum+',w,'+mode+','+(i*2+1)+','+(j*2+1));
-                    myturn=false;
-                    wall--;
-                    turn=(turn+1)%4;
+                    
+                    if(enable2()){
+                        room.send(pnum+',w,'+mode+','+(i*2+1)+','+(j*2+1));
+                        myturn=false;
+                        wall--;
+                        turn=(turn+1)%4;
+                    }else{
+                        block[i*2+1][j*2+1]=0;
+                        block[i*2+1+dir[mode][0][0]][j*2+1+dir[mode][0][1]]=0;
+                        block[i*2+1+dir[mode][1][0]][j*2+1+dir[mode][1][1]]=0;
+                    }              
+                    
                 }
                 break;
             }
@@ -183,6 +194,47 @@ function enable(){
     }
 }
 
+function enable2(){
+    let result=[false,false];
+    let d=[[0,-1],[1,0],[0,1],[-1,0]];
+    let maze=new Array(9);
+    for(let i=0;i<9;i++)    maze[i]=new Array(9);
+    for(let i=0;i<9;i++)    for(let j=0;j<9;j++)    maze[i][j]=0;
+
+    for(let player=0;player<2;player++){
+
+        for(let i=0;i<9;i++)    for(let j=0;j<9;j++){
+            maze[i][j]=0;
+        }
+        
+        if(player==0)   maze[c/2][r/2]=1;
+        else    maze[ec/2][er/2]=1;
+
+        let flag=false;
+        for(let loop=0;loop<80;loop++){
+            for(let i=0;i<9;i++)    for(let j=0;j<9;j++){
+                for(let k=0;k<4;k++){
+                    if(ins(i*2+d[k][0]*2,j*2+d[k][1]*2)){
+                        if(maze[i][j]==0&&maze[i+d[k][0]][j+d[k][1]]==1&&block[i*2+d[k][0]][j*2+d[k][1]]==0){
+                            maze[i][j]=1;
+                            flag=true;
+                            if(j==8-player*8){
+                                loop=80;
+                                result[player]=true;
+                            }
+                            i=9,j=9,k=4;
+                        }
+                    }
+                }
+                if(i==8&&j==8)  loop=80;
+            }
+        }
+    }
+
+    if(result[0]&&result[1])    return true;
+    else    return false;
+}
+
 function ins(cc,rr){
     if(cc>=0&&cc<17&&rr>=0&&rr<17)  return true;
     else    return false;
@@ -220,6 +272,8 @@ function cmd(s){
     if(s[1]=='m'){
         block[ conc(s[2],s[3],s[0]) ][ conr(s[2],s[3],s[0]) ]=0;
         block[ conc(s[4],s[5],s[0]) ][ conr(s[4],s[5],s[0]) ]=s[0]+2;
+        ec = conc(s[4],s[5],s[0]);
+        er = conr(s[4],s[5],s[0]);
         enable();
         turn++;
     }
