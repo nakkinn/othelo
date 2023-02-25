@@ -10,7 +10,7 @@ let peer,room,id="";
 function setup(){
     createCanvas(windowWidth,windowHeight);
     
-    console.log("ver.2.0.0");
+    console.log("ver.2.0.1");
 
     peer=new Peer({
         key: 'cf1155ef-ab9f-41a3-bd4a-b99c30cc0663',
@@ -207,7 +207,7 @@ function enable2(){
             maze[i][j]=0;
         }
         
-        if(player==0)   maze[c/2][r/2]=1;
+        if(player==1)   maze[c/2][r/2]=1;
         else    maze[ec/2][er/2]=1;
 
         let flag=false;
